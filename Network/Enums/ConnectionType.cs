@@ -36,7 +36,6 @@ namespace Network.Enums
     public enum ConnectionType
     {
         TCP,
-        UDP,
-        Bluetooth
+        UDP
     }
 }

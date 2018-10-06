@@ -45,7 +45,7 @@ namespace Network.RSA
         /// <param name="ipAddress">The ip address.</param>
         /// <param name="port">The port.</param>
         /// <param name="rsaPair">RSA-Pair.</param>
-        /// <param name="start">if set to <c>true</c> then the instance automatically starts to listen to tcp/udp/bluetooth clients.</param>
+        /// <param name="start">if set to <c>true</c> then the instance automatically starts to listen to tcp/udp clients.</param>
         internal SecureServerConnectionContainer(string ipAddress, int port, RSAPair rsaPair, bool start = true)
             : base(ipAddress, port, start)
         {

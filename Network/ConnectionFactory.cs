@@ -30,7 +30,6 @@
 #endregion Licence - LGPLv3
 #if NET46
 using InTheHand.Net.Sockets;
-using Network.Bluetooth;
 #endif
 using Network.RSA;
 using System;
@@ -71,70 +70,6 @@ namespace Network
         /// The timeout of a connection attempt in [ms]
         /// </summary>
         public const int CONNECTION_TIMEOUT = 8000;
-
-#if NET46
-        /// <summary>
-        /// The GUID of this assembly, needed for bluetooth connections.
-        /// </summary>
-        internal static Guid GUID;
-
-        /// <summary>
-        /// Set the GUID of this assembly.
-        /// </summary>
-        static ConnectionFactory()
-        {
-            GUID = Assembly.GetAssembly(typeof(Connection)).GetType().GUID;
-        }
-
-        /// <summary>
-        /// Gets all the bluetooth devices in range.
-        /// </summary>
-        /// <returns>The bluetooth devices in range.</returns>
-        public static DeviceInfo[] GetBluetoothDevices() { return DeviceInfo.GenerateDeviceInfos(new BluetoothClient().DiscoverDevicesInRange()); }
-
-        /// <summary>
-        /// Gets all the bluetooth devices in range async.
-        /// </summary>
-        /// <returns></returns>
-        public async static Task<DeviceInfo[]> GetBluetoothDevicesAsync()
-        {
-            return await Task.Factory.StartNew(() => DeviceInfo.GenerateDeviceInfos(new BluetoothClient().DiscoverDevices()));
-        }
-
-        /// <summary>
-        /// Creates a new instance of the BluetoothConnection with the given device info.
-        /// </summary>
-        /// <param name="bluetoothDeviceInfo">The device to pair with.</param>
-        /// <returns>The connection to send and receive data.</returns>
-        public static Tuple<ConnectionResult, BluetoothConnection> CreateBluetoothConnection(DeviceInfo bluetoothDeviceInfo)
-        {
-            BluetoothConnection bluetoothConnection = new BluetoothConnection(bluetoothDeviceInfo);
-            var result = bluetoothConnection.TryConnect().Result;
-            return new Tuple<ConnectionResult, BluetoothConnection>(result, bluetoothConnection);
-        }
-
-        /// <summary>
-        /// Creates a new instance of the BluetoothConnection with the given device info.
-        /// </summary>
-        /// <param name="bluetoothDeviceInfo">The device to pair with.</param>
-        /// <returns>The connection to send and receive data.</returns>
-        public async static Task<Tuple<ConnectionResult, BluetoothConnection>> CreateBluetoothConnectionAsync(DeviceInfo bluetoothDeviceInfo)
-        {
-            BluetoothConnection bluetoothConnection = new BluetoothConnection(bluetoothDeviceInfo);
-            var result = await bluetoothConnection.TryConnect();
-            return new Tuple<ConnectionResult, BluetoothConnection>(result, bluetoothConnection);
-        }
-
-        /// <summary>
-        /// Creates a new instance of the BluetoothConnection with the given client.
-        /// </summary>
-        /// <param name="bluetoothClient">The client to create a connection with.</param>
-        /// <returns>The result.</returns>
-        internal static BluetoothConnection CreateBluetoothConnection(BluetoothClient bluetoothClient)
-        {
-            return new BluetoothConnection(bluetoothClient);
-        }
-#endif
 
         /// <summary>
         /// Creates a new tcp connection and tries to connect to the given endpoint.
