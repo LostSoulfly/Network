@@ -80,6 +80,10 @@ namespace Network.Async
                 if (receivedAsyncPacket == null)
                     await packetReceivedEvent.AsTask(TimeSpan.FromMilliseconds(connection.TIMEOUT));
             }
+            catch (TaskCanceledException taskCanceledException)
+            {
+                connection.Logger?.Log($"Task canceled due to timeout for Request packet {packet.GetType().Name}", taskCanceledException, Enums.LogLevel.Error);
+            }
             catch(OverflowException overflowException)
             {
                 connection.Logger?.Log($"Exception while waiting for async packet occured. Request packet {packet.GetType().Name}", overflowException, Enums.LogLevel.Error);
