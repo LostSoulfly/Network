@@ -113,6 +113,7 @@ namespace Network
         private Thread readStreamThread;
         private Thread writeStreamThread;
         private Thread invokePacketThread;
+        private Thread pingStreamThread;
         #endregion Threads
 
         /// <summary>
@@ -164,9 +165,15 @@ namespace Network
             invokePacketThread.Name = $"Invoke Thread {IPLocalEndPoint.AddressFamily.ToString()}";
             invokePacketThread.IsBackground = true;
 
+            pingStreamThread = new Thread(PingWork);
+            pingStreamThread.Priority = ThreadPriority.Normal;
+            pingStreamThread.Name = $"Ping Thread {IPLocalEndPoint.AddressFamily.ToString()}";
+            pingStreamThread.IsBackground = true;
+
             readStreamThread.Start();
             writeStreamThread.Start();
             invokePacketThread.Start();
+            if (keepAlive) pingStreamThread.Start();
         }
 
         /// <summary>
@@ -410,10 +417,19 @@ namespace Network
         /// </summary>
         private void ConfigPing(bool enable)
         {
-#if !DEBUG
-            if (enable) nextPingStopWatch.Restart();
-            else nextPingStopWatch.Reset();
-#endif
+            if (enable)
+            {
+                if (pingStreamThread != null)
+                {
+                    nextPingStopWatch.Restart();
+                    if (keepAlive && !pingStreamThread.IsAlive) { pingStreamThread.Start(); }
+                }
+            }
+            else
+            {
+                nextPingStopWatch.Reset();
+                if (pingStreamThread.IsAlive) pingStreamThread.Abort();
+            }
         }
 
         #region Sending
@@ -564,19 +580,6 @@ namespace Network
                     dataAvailableEvent.WaitOne();
 
                     WriteSubWork();
-
-                    //Check if the client is still alive.
-                    if (KeepAlive && nextPingStopWatch.ElapsedMilliseconds >= PING_INTERVALL)
-                    {
-                        SendPing();
-                    }
-                    else if (currentPingStopWatch.ElapsedMilliseconds >= TIMEOUT &&
-                        currentPingStopWatch.ElapsedMilliseconds != 0)
-                    {
-                        ConfigPing(KeepAlive);
-                        currentPingStopWatch.Reset();
-                        CloseHandler(CloseReason.Timeout);
-                    }
                 }
             }
             catch (ThreadAbortException) { return; }
@@ -616,6 +619,40 @@ namespace Network
             catch(Exception) { }
 
             CloseHandler(CloseReason.InvokePacketThreadException);
+        }
+
+        /// <summary>
+        /// Ping continuously to detect lost connections.
+        /// </summary>
+        private void PingWork()
+        {
+            try
+            {
+                while (true)
+                {
+                    Task.Delay(1000);
+
+                    //Check if the client is still alive.
+                    if (KeepAlive && nextPingStopWatch.ElapsedMilliseconds >= PING_INTERVALL)
+                    {
+                        SendPing();
+                    }
+                    else if (currentPingStopWatch.ElapsedMilliseconds >= TIMEOUT &&
+                        currentPingStopWatch.ElapsedMilliseconds != 0)
+                    {
+                        ConfigPing(KeepAlive);
+                        currentPingStopWatch.Reset();
+                        CloseHandler(CloseReason.Timeout);
+                    }
+                }
+            }
+            catch (ThreadAbortException) { return; }
+            catch (Exception exception)
+            {
+                Logger?.Log("Ping remote host", exception, LogLevel.Exception);
+            }
+
+            CloseHandler(CloseReason.WritePacketThreadException);
         }
         #endregion Threads
 
