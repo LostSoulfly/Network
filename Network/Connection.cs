@@ -129,7 +129,7 @@ namespace Network
         /// Has to map the objects to their unique id and back.
         /// </summary>
         private ObjectMap objectMap = new ObjectMap();
-
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="Connection"/> class.
         /// </summary>
@@ -503,7 +503,7 @@ namespace Network
 
                 foreach (Packet currentForwardPacket in forwardToDelegatePackets)
                 {
-                    Logger.Log($"Buffered packet {currentForwardPacket.GetType().Name} received a handler => Forwarding", LogLevel.Information);
+                    Logger?.Log($"Buffered packet {currentForwardPacket.GetType().Name} received a handler => Forwarding", LogLevel.Information);
                     receivedUnknownPacketHandlerPackets.Remove(currentForwardPacket);
                     HandleDefaultPackets(currentForwardPacket);
                 }
@@ -539,13 +539,13 @@ namespace Network
                     receivedPacket.Size = packetLength;
                     packetAvailableEvent.Set();
 
-                    Logger.LogInComingPacket(packetData, receivedPacket);
+                    Logger?.LogInComingPacket(packetData, receivedPacket);
                 }
             }
             catch (ThreadAbortException) { return; }
             catch (Exception exception)
             {
-                Logger.Log("Reading packet from stream", exception, LogLevel.Exception);
+                Logger?.Log("Reading packet from stream", exception, LogLevel.Exception);
             }
 
             CloseHandler(CloseReason.ReadPacketThreadException);
@@ -582,7 +582,7 @@ namespace Network
             catch (ThreadAbortException) { return; }
             catch(Exception exception)
             {
-                Logger.Log("Write object on stream", exception, LogLevel.Exception);
+                Logger?.Log("Write object on stream", exception, LogLevel.Exception);
             }
 
             CloseHandler(CloseReason.WritePacketThreadException);
@@ -654,7 +654,7 @@ namespace Network
                 Array.Copy(packetData, 0, packetByte, 2 + packetLength.Length, packetData.Length);
                 WriteBytes(packetByte);
 
-                Logger.LogOutgoingPacket(packetData, packet);
+                Logger?.LogOutgoingPacket(packetData, packet);
             }
         }
 
@@ -742,7 +742,7 @@ namespace Network
             {
                 RawData rawData = (RawData)packet;
                 if(objectMap[rawData.Key] == null)
-                    Logger.Log($"RawData packet has no listener. Key: {rawData.Key}", LogLevel.Warning);
+                    Logger?.Log($"RawData packet has no listener. Key: {rawData.Key}", LogLevel.Warning);
                 else objectMap[rawData.Key].DynamicInvoke(new object[] { packet, this });
                 return;
             }
@@ -757,7 +757,7 @@ namespace Network
             }
             catch(Exception exception)
             {
-                Logger.Log("Provided delegate contains a bug. Packet invocation thread crashed.", exception, LogLevel.Exception);
+                Logger?.Log("Provided delegate contains a bug. Packet invocation thread crashed.", exception, LogLevel.Exception);
             }
         }
 
@@ -767,10 +767,10 @@ namespace Network
         /// <param name="packet">The packet.</param>
         protected virtual void PacketWithoutHandlerReceived(Packet packet)
         {
-            Logger.Log($"Packet with no handler received: {packet.GetType().Name}.", LogLevel.Warning);
+            Logger?.Log($"Packet with no handler received: {packet.GetType().Name}.", LogLevel.Warning);
             if (receivedUnknownPacketHandlerPackets.Count < PacketBuffer)
                 receivedUnknownPacketHandlerPackets.Add(packet);
-            else Logger.Log($"PacketBuffer exeeded the limit of {PacketBuffer}. " +
+            else Logger?.Log($"PacketBuffer exeeded the limit of {PacketBuffer}. " +
                 $"Received packet {packet.GetType().Name} dropped.", LogLevel.Error);
         }
 
@@ -806,7 +806,7 @@ namespace Network
             }
             catch(Exception exception)
             {
-                Logger.Log($"Couldn't send a close-message '{closeReason.ToString()}' to the endpoint {IPRemoteEndPoint.ToString()}.", exception, LogLevel.Warning);
+                Logger?.Log($"Couldn't send a close-message '{closeReason.ToString()}' to the endpoint {IPRemoteEndPoint.ToString()}.", exception, LogLevel.Warning);
             }
 
             if (callCloseEvent)
@@ -822,7 +822,7 @@ namespace Network
         /// Unlocks the remote connection so that he is able to send packets.
         /// </summary>
         [Obsolete("Unlocking a connection isn't required anymore.")]
-        public void UnlockRemoteConnection() => Logger.Log($"UnlockRemoteConnection will be removed in a future release.", LogLevel.Warning);
+        public void UnlockRemoteConnection() => Logger?.Log($"UnlockRemoteConnection will be removed in a future release.", LogLevel.Warning);
 
         /// <summary>
         /// Gets the next free port.

@@ -35,6 +35,7 @@ using System.Text;
 using Network.Enums;
 using ConsoleTables;
 using System.Linq;
+using Network.Interfaces;
 
 namespace Network.Logging
 {
@@ -42,14 +43,14 @@ namespace Network.Logging
     /// This class is in charge of logging network specific events and states
     /// into a given stream or dumping it onto the output window.
     /// </summary>
-    internal class NetworkLog
+    public class NetworkLogStream : ILogger
     {
         /// <summary>
         /// We need the connection to retrieve specific connection information.
         /// </summary>
         private volatile Connection connection;
 
-        internal NetworkLog(Connection connection)
+        public NetworkLogStream(Connection connection)
         {
             this.connection = connection;
         }
@@ -62,7 +63,7 @@ namespace Network.Logging
         /// <summary>
         /// Determins if we should enable logging or not.
         /// </summary>
-        internal bool EnableLogging { get; set; } = false;
+        public bool EnableLogging { get; set; }
 
         /// <summary>
         /// The stream we are going to log into.
@@ -73,21 +74,21 @@ namespace Network.Logging
         /// Enables to log into a costum stream.
         /// </summary>
         /// <param name="stream">The stream to log into.</param>
-        internal void LogIntoStream(Stream stream) => StreamLogger = new StreamWriter(stream);
+        public void LogIntoStream(Stream stream) => StreamLogger = new StreamWriter(stream);
 
         /// <summary>
         /// Logs a message.
         /// </summary>
         /// <param name="message">The message to log.</param>
         /// <param name="logLevel">The level of the log.</param>
-        internal void Log(string message, LogLevel logLevel = LogLevel.Information) => Log(message, null, logLevel);
+        public void Log(string message, LogLevel logLevel = LogLevel.Information) => Log(message, null, logLevel);
 
         /// <summary>
         /// Logs an exception.
         /// </summary>
         /// <param name="exception">The exception to log.</param>
         /// <param name="logLevel">The level of the log.</param>
-        internal void Log(Exception exception, LogLevel logLevel = LogLevel.Information) => Log(string.Empty, exception, logLevel);
+        public void Log(Exception exception, LogLevel logLevel = LogLevel.Information) => Log(string.Empty, exception, logLevel);
 
         /// <summary>
         /// Logs a message with an exception.
@@ -95,9 +96,9 @@ namespace Network.Logging
         /// <param name="message">The message to log.</param>
         /// <param name="exception">The exception to log.</param>
         /// <param name="logLevel">The log level.</param>
-        internal void Log(string message, Exception exception, LogLevel logLevel = LogLevel.Information)
+        public void Log(string message, Exception exception, LogLevel logLevel = LogLevel.Information)
         {
-            if(!EnableLogging)
+            if (!EnableLogging)
                 return;
 
             string finalLogMessage = BuildLogHeader(exception, logLevel);
@@ -117,14 +118,14 @@ namespace Network.Logging
         /// </summary>
         /// <param name="packet">The receiving packet.</param>
         /// <param name="packetObj">The receiving object.</param>
-        internal void LogInComingPacket(byte[] packet, Packet packetObj) => LogPacket(packet, packetObj, "Incoming");
+        public void LogInComingPacket(byte[] packet, Packet packetObj) { LogPacket(packet, packetObj, "Incoming"); }
 
         /// <summary>
         /// Logs the sending packet.
         /// </summary>
         /// <param name="packet">The bytes of the packet.</param>
         /// <param name="packetObj">The packet to send.</param>
-        internal void LogOutgoingPacket(byte[] packet, Packet packetObj) => LogPacket(packet, packetObj, "Outgoing");
+        public void LogOutgoingPacket(byte[] packet, Packet packetObj) { LogPacket(packet, packetObj, "Outgoing"); }
 
         private void LogPacket(byte[] packet, Packet packetObj, string direction)
         {
@@ -177,7 +178,7 @@ namespace Network.Logging
         /// Writes everything to the desired stream.
         /// </summary>
         /// <param name="message">The message to log.</param>
-        private void Log(string message)
+        public void Log(string message)
         {
             Debug.WriteLine(message);
             StreamLogger?.WriteLine(message);

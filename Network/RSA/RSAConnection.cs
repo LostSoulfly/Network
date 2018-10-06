@@ -148,7 +148,7 @@ namespace Network.RSA
 
             RSAKeyInformationResponse keyInformationResponse = await Connection.SendAsync<RSAKeyInformationResponse>(new RSAKeyInformationRequest(RSAPair.Public, RSAPair.KeySize));
 
-            Connection.Logger.Log($"{Connection.GetType().Name} RSA Encryption active.", Enums.LogLevel.Information);
+            Connection.Logger?.Log($"{Connection.GetType().Name} RSA Encryption active.", Enums.LogLevel.Information);
             IsRSACommunicationActive = true;
         }
 

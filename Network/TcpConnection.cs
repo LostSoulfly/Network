@@ -206,7 +206,7 @@ namespace Network
         /// </summary>
         protected override void HandleUnknownPacket()
         {
-            Logger.Log($"Connection can't handle the received packet. No listener defined.", LogLevel.Error);
+            Logger?.Log($"Connection can't handle the received packet. No listener defined.", LogLevel.Error);
             CloseHandler(CloseReason.ReadPacketThreadException);
         }
 

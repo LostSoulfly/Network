@@ -11,19 +11,19 @@ namespace Network
     /// </summary>
     public abstract partial class Connection : IPacketHandler
     {
-        private NetworkLog logger;
+        private ILogger logger;
 
         /// <summary>
         /// Logger for the connection and all protected classes.
         /// </summary>
-        internal NetworkLog Logger { get { return logger; } }
+        internal ILogger Logger { get { return logger; } }
 
         /// <summary>
         /// Initializes all the addons.
         /// </summary>
         private void InitAddons()
         {
-            logger = new NetworkLog(this);
+            //this.logger = log;
         }
 
         /// <summary>
@@ -34,8 +34,17 @@ namespace Network
         /// <param name="stream">The stream to log into.</param>
         public void LogIntoStream(Stream stream)
         {
-            logger.LogIntoStream(stream);
-        }        
+            logger?.LogIntoStream(stream);
+        }
+
+        /// <summary>
+        /// Logs events, exceptions and messages into the given ILogger instance.
+        /// </summary>
+        /// <param name="logger">The ILogger interface to log into.</param>
+        public void SetupLogger(ILogger logger)
+        {
+            this.logger = logger;
+        }
 
         /// <summary>
         /// Indicates if the connection should automatically log.
@@ -56,7 +65,7 @@ namespace Network
         {
             if(data == null)
             {
-                logger.Log("Can't send a null reference data byte array", new ArgumentException(), Enums.LogLevel.Information);
+                logger?.Log("Can't send a null reference data byte array", new ArgumentException(), Enums.LogLevel.Information);
                 return;
             }
 

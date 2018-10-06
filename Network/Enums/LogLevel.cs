@@ -30,7 +30,7 @@
 #endregion Licence - LGPLv3
 namespace Network.Enums
 {
-    internal enum LogLevel
+    public enum LogLevel
     {
         Information,
         Warning,

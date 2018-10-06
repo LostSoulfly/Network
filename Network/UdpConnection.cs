@@ -229,7 +229,7 @@ namespace Network
         /// <exception cref="System.NotImplementedException"></exception>
         protected override void HandleUnknownPacket()
         {
-            Logger.Log($"Connection can't handle the received packet. No listener defined.", LogLevel.Warning);
+            Logger?.Log($"Connection can't handle the received packet. No listener defined.", LogLevel.Warning);
             //Ignore an unkown packet, we could have lost the AddPacketTypeRequest.
         }
 
