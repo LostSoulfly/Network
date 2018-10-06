@@ -44,6 +44,7 @@ namespace Network
         public void SetupLogger(ILogger logger)
         {
             this.logger = logger;
+            EnableLogging = true;
         }
 
         /// <summary>

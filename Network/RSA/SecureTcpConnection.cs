@@ -29,6 +29,7 @@
 // ***********************************************************************
 #endregion Licence - LGPLv3
 using Network.Converter;
+using Network.Interfaces;
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -42,8 +43,21 @@ namespace Network.RSA
     /// </summary>
     public class SecureTcpConnection : TcpConnection
     {
-        internal SecureTcpConnection(RSAPair rsaPair, TcpClient tcpClient)
+        internal SecureTcpConnection(RSAPair rsaPair, TcpClient tcpClient, ILogger logger)
             : base(tcpClient, skipInitializationProcess:true)
+        {
+            //Setup the RSAConnectionHelper object.
+            RSAConnection = new RSAConnection(this, rsaPair);
+            PacketConverter = base.PacketConverter;
+            base.PacketConverter = RSAConnection;
+            base.SetupLogger(logger);
+
+            //Since we did skip the initialization,... DO IT!
+            Init();
+        }
+
+        internal SecureTcpConnection(RSAPair rsaPair, TcpClient tcpClient)
+            : base(tcpClient, skipInitializationProcess: true)
         {
             //Setup the RSAConnectionHelper object.
             RSAConnection = new RSAConnection(this, rsaPair);

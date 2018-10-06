@@ -29,6 +29,7 @@
 // ***********************************************************************
 #endregion Licence - LGPLv3
 using Network.Converter;
+using Network.Interfaces;
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -58,6 +59,18 @@ namespace Network.RSA
             PacketConverter = base.PacketConverter;
             base.PacketConverter = RSAConnection;
 
+            //Since we did skip the initialization,... DO IT!
+            Init();
+        }
+
+        internal SecureUdpConnection(UdpClient udpClient, IPEndPoint remoteEndPoint, RSAPair rsaPair, ILogger logger, bool writeLock = false)
+            : base(udpClient, remoteEndPoint, writeLock, skipInitializationProcess: true)
+        {
+            //Setup the RSAConnectionHelper object.
+            RSAConnection = new RSAConnection(this, rsaPair);
+            PacketConverter = base.PacketConverter;
+            base.PacketConverter = RSAConnection;
+            base.SetupLogger(logger);
             //Since we did skip the initialization,... DO IT!
             Init();
         }
