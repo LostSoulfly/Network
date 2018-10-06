@@ -63,18 +63,6 @@ namespace Network.RSA
             Init();
         }
 
-        internal SecureUdpConnection(UdpClient udpClient, IPEndPoint remoteEndPoint, RSAPair rsaPair, ILogger logger, bool writeLock = false)
-            : base(udpClient, remoteEndPoint, writeLock, skipInitializationProcess: true)
-        {
-            //Setup the RSAConnectionHelper object.
-            RSAConnection = new RSAConnection(this, rsaPair);
-            PacketConverter = base.PacketConverter;
-            base.PacketConverter = RSAConnection;
-            base.SetupLogger(logger);
-            //Since we did skip the initialization,... DO IT!
-            Init();
-        }
-
         /// <summary>
         /// The PublicKey of this instance.
         /// </summary>
