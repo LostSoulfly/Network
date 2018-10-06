@@ -57,6 +57,8 @@ namespace Network
         private TcpConnection tcpConnection;
         private UdpConnection udpConnection;
 
+        private bool useUdp = false;
+
         /// <summary>
         /// If there is no connection yet, save the packets in this buffer.
         /// </summary>
@@ -108,10 +110,11 @@ namespace Network
         /// <summary>
         /// Initializes this instance and starts connecting to the endpoint.
         /// </summary>
-        internal void Initialize()
+        internal void Initialize(bool useUdp)
         {
             reconnectTimer = new Timer();
             reconnectTimer.Elapsed += TryToConnect;
+            this.useUdp = useUdp;
             TryConnect();
         }
 
@@ -210,7 +213,7 @@ namespace Network
                 reconnectTimer.Stop();
             if (tcpConnection == null || !tcpConnection.IsAlive)
                 await OpenNewTCPConnection();
-            if ((udpConnection == null || !udpConnection.IsAlive) && IsAlive_TCP)
+            if (useUdp && ((udpConnection == null || !udpConnection.IsAlive) && IsAlive_TCP))
                 await OpenNewUDPConnection();
         }
 

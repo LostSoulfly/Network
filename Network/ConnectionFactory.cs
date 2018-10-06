@@ -395,10 +395,10 @@ namespace Network
         /// Creates a new instance of a connection container.
         /// </summary>
         /// <returns>ConnectionContainer.</returns>
-        public static ClientConnectionContainer CreateClientConnectionContainer(string ipAddress, int port)
+        public static ClientConnectionContainer CreateClientConnectionContainer(string ipAddress, int port, bool UseUDP = false)
         {
             var clientConnectionContainer = new ClientConnectionContainer(ipAddress, port);
-            clientConnectionContainer.Initialize();
+            clientConnectionContainer.Initialize(UseUDP);
             return clientConnectionContainer;
         }
 
@@ -407,7 +407,7 @@ namespace Network
         /// <param name="keySize">The keySize.</param>
         /// </summary>
         /// <returns>ConnectionContainer.</returns>
-        public static ClientConnectionContainer CreateSecureClientConnectionContainer(string ipAddress, int port, int keySize = 2048) => CreateSecureClientConnectionContainer(ipAddress, port, RSAKeyGeneration.Generate(keySize));
+        public static ClientConnectionContainer CreateSecureClientConnectionContainer(string ipAddress, int port, int keySize = 2048, bool UseUDP = false) => CreateSecureClientConnectionContainer(ipAddress, port, RSAKeyGeneration.Generate(keySize), UseUDP);
 
         /// <summary>
         /// Creates a new instance of a secure-connection container. (RSA Encryption)
@@ -416,7 +416,7 @@ namespace Network
         /// <param name="keySize">The keySize.</param>
         /// </summary>
         /// <returns>ConnectionContainer.</returns>
-        public static ClientConnectionContainer CreateSecureClientConnectionContainer(string ipAddress, int port, string publicKey, string privateKey, int keySize = 2048) => CreateSecureClientConnectionContainer(ipAddress, port, new RSAPair(publicKey, privateKey, keySize));
+        public static ClientConnectionContainer CreateSecureClientConnectionContainer(string ipAddress, int port, string publicKey, string privateKey, int keySize = 2048, bool UseUDP = false) => CreateSecureClientConnectionContainer(ipAddress, port, new RSAPair(publicKey, privateKey, keySize), UseUDP);
 
         /// <summary>
         /// Creates a new instance of a secure-connection container. (RSA Encryption)
@@ -428,7 +428,21 @@ namespace Network
         public static ClientConnectionContainer CreateSecureClientConnectionContainer(string ipAddress, int port, RSAPair rsaPair)
         {
             var secureClientConnectionContainer = new SecureClientConnectionContainer(ipAddress, port, rsaPair);
-            secureClientConnectionContainer.Initialize();
+            secureClientConnectionContainer.Initialize(true);
+            return secureClientConnectionContainer;
+        }
+
+        /// <summary>
+        /// Creates a new instance of a secure-connection container. (RSA Encryption)
+        /// </summary>
+        /// <param name="ipAddress">The IP-Address.</param>
+        /// <param name="port">The Port.</param>
+        /// <param name="rsaPair">RSA-Pair.</param>
+        /// <returns>ConnectionContainer.</returns>
+        public static ClientConnectionContainer CreateSecureClientConnectionContainer(string ipAddress, int port, RSAPair rsaPair, bool UseUDP = false)
+        {
+            var secureClientConnectionContainer = new SecureClientConnectionContainer(ipAddress, port, rsaPair);
+            secureClientConnectionContainer.Initialize(UseUDP);
             return secureClientConnectionContainer;
         }
 
@@ -445,7 +459,7 @@ namespace Network
                 throw new ArgumentException("TCP connection must be connected to an endpoint.");
 
             var clientConnectionContainer = new ClientConnectionContainer(tcpConnection, udpConnection);
-            clientConnectionContainer.Initialize();
+            clientConnectionContainer.Initialize(true);
             return clientConnectionContainer;
         }
 
@@ -457,7 +471,7 @@ namespace Network
         /// <param name="keySize">The keySize.</param>
         /// <returns>ConnectionContainer.</returns>
         /// <exception cref="System.ArgumentException">TCP and UDP connection must be connected to an endpoint.</exception>
-        public static ClientConnectionContainer CreateSecureClientConnectionContainer(TcpConnection tcpConnection, UdpConnection udpConnection, int keySize = 2048) => CreateSecureClientConnectionContainer(tcpConnection, udpConnection, RSAKeyGeneration.Generate(keySize));
+        public static ClientConnectionContainer CreateSecureClientConnectionContainer(TcpConnection tcpConnection, UdpConnection udpConnection, int keySize = 2048, bool UseUDP = false) => CreateSecureClientConnectionContainer(tcpConnection, udpConnection, RSAKeyGeneration.Generate(keySize), UseUDP);
 
         /// <summary>
         /// Creates a new instance of a secure-connection container. (RSA Encryption)
@@ -479,13 +493,13 @@ namespace Network
         /// <param name="rsaPair">RSA-Pair.</param>
         /// <returns>ConnectionContainer.</returns>
         /// <exception cref="System.ArgumentException">TCP and UDP connection must be connected to an endpoint.</exception>
-        public static ClientConnectionContainer CreateSecureClientConnectionContainer(TcpConnection tcpConnection, UdpConnection udpConnection, RSAPair rsaPair)
+        public static ClientConnectionContainer CreateSecureClientConnectionContainer(TcpConnection tcpConnection, UdpConnection udpConnection, RSAPair rsaPair, bool UseUDP = false)
         {
             if (tcpConnection == null || !tcpConnection.IsAlive)
                 throw new ArgumentException("TCP connection must be connected to an endpoint.");
 
             var secureClientConnectionContainer = new SecureClientConnectionContainer(tcpConnection, udpConnection, rsaPair);
-            secureClientConnectionContainer.Initialize();
+            secureClientConnectionContainer.Initialize(UseUDP);
             return secureClientConnectionContainer;
         }
 
